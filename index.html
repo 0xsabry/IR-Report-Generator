@@ -1,0 +1,1294 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Incident Response Report Generator — Aggregate security tool data into professional IR reports"
+    />
+    <title>IR Report Generator — Incident Response Reporting Platform</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>"
+    />
+  </head>
+  <body>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <div class="app-wrapper">
+      <!-- ========== HERO ========== -->
+      <header class="hero">
+        <div class="hero-badge">
+          <span class="dot"></span> Incident Response Platform
+        </div>
+        <h1>IR Report Generator</h1>
+        <p>
+          Aggregate data from SIEM, EDR, XDR, IDS, Firewall & more into
+          structured, professional incident response reports.
+        </p>
+        <div class="stats-row">
+          <div class="stat-card total">
+            <span class="stat-value" id="statTotal">0</span>
+            <span class="stat-label">Findings</span>
+          </div>
+          <div class="stat-card critical">
+            <span class="stat-value" id="statCritical">0</span>
+            <span class="stat-label">Critical</span>
+          </div>
+          <div class="stat-card high">
+            <span class="stat-value" id="statHigh">0</span>
+            <span class="stat-label">High</span>
+          </div>
+          <div class="stat-card medium">
+            <span class="stat-value" id="statMedium">0</span>
+            <span class="stat-label">Medium</span>
+          </div>
+          <div class="stat-card low">
+            <span class="stat-value" id="statLow">0</span>
+            <span class="stat-label">Low</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- ========== MAIN NAVIGATION ========== -->
+      <nav class="main-nav">
+        <button
+          class="main-nav-btn active"
+          data-target="section-metadata"
+          id="navMetadata"
+        >
+          📋 Incident Info
+        </button>
+        <button class="main-nav-btn" data-target="section-tools" id="navTools">
+          🔧 Tool Data
+        </button>
+        <button
+          class="main-nav-btn"
+          data-target="section-timeline"
+          id="navTimeline"
+        >
+          ⏱️ Timeline
+        </button>
+        <button class="main-nav-btn" data-target="section-ioc" id="navIOC">
+          🎯 IOCs
+        </button>
+        <button class="main-nav-btn" data-target="section-mitre" id="navMitre">
+          🗺️ MITRE ATT&CK
+        </button>
+        <button
+          class="main-nav-btn"
+          data-target="section-actions"
+          id="navActions"
+        >
+          🛡️ Response Actions
+        </button>
+        <button
+          class="main-nav-btn"
+          data-target="section-report"
+          id="navReport"
+        >
+          📄 Report
+        </button>
+      </nav>
+
+      <!-- ========== SECTION 1: INCIDENT METADATA ========== -->
+      <div class="main-section active" id="section-metadata">
+        <div class="section">
+          <div class="section-header">
+            <div class="icon cyan">📋</div>
+            <h2>Incident Metadata</h2>
+            <p>Core incident information</p>
+          </div>
+          <div class="card">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Incident ID <span class="required">*</span></label>
+                <input
+                  type="text"
+                  id="incidentId"
+                  placeholder="INC-2026-0042"
+                />
+              </div>
+              <div class="form-group">
+                <label>Incident Title <span class="required">*</span></label>
+                <input
+                  type="text"
+                  id="incidentTitle"
+                  placeholder="Ransomware attack on critical server"
+                />
+              </div>
+              <div class="form-group">
+                <label>Date Detected <span class="required">*</span></label>
+                <input type="datetime-local" id="incidentDate" />
+              </div>
+              <div class="form-group">
+                <label>Date Resolved</label>
+                <input type="datetime-local" id="incidentResolved" />
+              </div>
+              <div class="form-group">
+                <label>Lead Analyst <span class="required">*</span></label>
+                <input
+                  type="text"
+                  id="analystName"
+                  placeholder="Mohamed Sabry"
+                />
+              </div>
+              <div class="form-group">
+                <label>Team / Department</label>
+                <input type="text" id="teamName" placeholder="SOC Team Alpha" />
+              </div>
+              <div class="form-group">
+                <label>Severity <span class="required">*</span></label>
+                <select id="incidentSeverity">
+                  <option value="">Select severity...</option>
+                  <option value="Critical">🔴 Critical</option>
+                  <option value="High">🟠 High</option>
+                  <option value="Medium">🔵 Medium</option>
+                  <option value="Low">🟢 Low</option>
+                  <option value="Informational">🟣 Informational</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Status</label>
+                <select id="incidentStatus">
+                  <option value="Open">Open</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Contained">Contained</option>
+                  <option value="Eradicated">Eradicated</option>
+                  <option value="Recovered">Recovered</option>
+                  <option value="Closed">Closed</option>
+                  <option value="Post-Incident Review">
+                    Post-Incident Review
+                  </option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Incident Category</label>
+                <select id="incidentCategory">
+                  <option value="">Select category...</option>
+                  <option value="Malware/Ransomware">
+                    Malware / Ransomware
+                  </option>
+                  <option value="Phishing">Phishing</option>
+                  <option value="Data Breach">Data Breach</option>
+                  <option value="Unauthorized Access">
+                    Unauthorized Access
+                  </option>
+                  <option value="DDoS">DDoS</option>
+                  <option value="Insider Threat">Insider Threat</option>
+                  <option value="APT">Advanced Persistent Threat</option>
+                  <option value="Supply Chain">Supply Chain Attack</option>
+                  <option value="Lateral Movement">Lateral Movement</option>
+                  <option value="Privilege Escalation">
+                    Privilege Escalation
+                  </option>
+                  <option value="Web Application Attack">
+                    Web Application Attack
+                  </option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Affected Assets</label>
+                <input
+                  type="text"
+                  id="affectedAssets"
+                  placeholder="e.g. WEB-SRV-01, DB-PROD-02 (comma separated)"
+                />
+              </div>
+              <div class="form-group full-width">
+                <label>Executive Summary</label>
+                <textarea
+                  id="execSummary"
+                  rows="4"
+                  placeholder="Brief executive-level summary of the incident. If left blank, one will be auto-generated from your data."
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== SECTION 2: TOOL DATA ========== -->
+      <div class="main-section" id="section-tools">
+        <div class="section">
+          <div class="section-header">
+            <div class="icon green">🔧</div>
+            <h2>Security Tool Findings</h2>
+            <p>Add data from each security tool</p>
+          </div>
+          <div class="card">
+            <div class="tabs-container">
+              <div class="tabs-nav" id="toolTabsNav">
+                <button class="tab-btn active" data-tool="siem">
+                  🖥️ SIEM <span class="tab-count" id="count-siem">0</span>
+                </button>
+                <button class="tab-btn" data-tool="edr">
+                  🛡️ EDR/XDR <span class="tab-count" id="count-edr">0</span>
+                </button>
+                <button class="tab-btn" data-tool="ids">
+                  🚨 IDS/IPS <span class="tab-count" id="count-ids">0</span>
+                </button>
+                <button class="tab-btn" data-tool="firewall">
+                  🔥 Firewall
+                  <span class="tab-count" id="count-firewall">0</span>
+                </button>
+                <button class="tab-btn" data-tool="email">
+                  📧 Email Security
+                  <span class="tab-count" id="count-email">0</span>
+                </button>
+                <button class="tab-btn" data-tool="waf">
+                  🌐 WAF <span class="tab-count" id="count-waf">0</span>
+                </button>
+                <button class="tab-btn" data-tool="threat_intel">
+                  🧠 Threat Intel
+                  <span class="tab-count" id="count-threat_intel">0</span>
+                </button>
+                <button class="tab-btn" data-tool="custom">
+                  ⚙️ Other <span class="tab-count" id="count-custom">0</span>
+                </button>
+              </div>
+
+              <!-- SIEM Panel -->
+              <div class="tab-panel active" id="panel-siem">
+                <div class="add-finding-form" id="form-siem">
+                  <div class="form-group">
+                    <label>Tool Name</label>
+                    <select>
+                      <option value="Splunk">Splunk</option>
+                      <option value="IBM QRadar">IBM QRadar</option>
+                      <option value="Wazuh">Wazuh</option>
+                      <option value="Microsoft Sentinel">
+                        Microsoft Sentinel
+                      </option>
+                      <option value="Elastic SIEM">Elastic SIEM</option>
+                      <option value="LogRhythm">LogRhythm</option>
+                      <option value="ArcSight">ArcSight</option>
+                      <option value="Other SIEM">Other</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Alert / Rule Name</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Multiple Failed Logins from Single IP"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Severity</label>
+                    <select>
+                      <option value="Critical">Critical</option>
+                      <option value="High">High</option>
+                      <option value="Medium">Medium</option>
+                      <option value="Low">Low</option>
+                      <option value="Informational">Informational</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Timestamp</label>
+                    <input type="datetime-local" />
+                  </div>
+                  <div class="form-group">
+                    <label>Source IP</label>
+                    <input type="text" placeholder="192.168.1.100" />
+                  </div>
+                  <div class="form-group">
+                    <label>Destination IP</label>
+                    <input type="text" placeholder="10.0.0.5" />
+                  </div>
+                  <div class="form-group">
+                    <label>Action Taken</label>
+                    <select>
+                      <option value="Alerted">Alerted</option>
+                      <option value="Blocked">Blocked</option>
+                      <option value="Quarantined">Quarantined</option>
+                      <option value="Allowed">Allowed</option>
+                      <option value="Logged">Logged</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>User Involved</label>
+                    <input type="text" placeholder="admin@company.com" />
+                  </div>
+                  <div class="form-group full-width">
+                    <label>Raw Log / Evidence</label>
+                    <textarea
+                      rows="5"
+                      placeholder="Paste raw SIEM log entries, correlation results, or alert details here..."
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <label>Analysis Notes</label>
+                    <textarea
+                      rows="3"
+                      placeholder="Analyst observations and conclusions about this finding..."
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <button
+                      class="btn btn-primary"
+                      onclick="addFinding('siem')"
+                    >
+                      ➕ Add SIEM Finding
+                    </button>
+                  </div>
+                </div>
+                <div class="findings-list" id="findings-siem"></div>
+              </div>
+
+              <!-- EDR/XDR Panel -->
+              <div class="tab-panel" id="panel-edr">
+                <div class="add-finding-form" id="form-edr">
+                  <div class="form-group">
+                    <label>Tool Name</label>
+                    <select>
+                      <option value="CrowdStrike Falcon">
+                        CrowdStrike Falcon
+                      </option>
+                      <option value="SentinelOne">SentinelOne</option>
+                      <option value="Microsoft Defender">
+                        Microsoft Defender for Endpoint
+                      </option>
+                      <option value="Carbon Black">Carbon Black</option>
+                      <option value="Cortex XDR">Cortex XDR (Palo Alto)</option>
+                      <option value="Trend Micro XDR">
+                        Trend Micro Vision One
+                      </option>
+                      <option value="Sophos EDR">Sophos EDR</option>
+                      <option value="Other EDR">Other</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Detection Name</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Cobalt Strike Beacon Detected"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Severity</label>
+                    <select>
+                      <option value="Critical">Critical</option>
+                      <option value="High">High</option>
+                      <option value="Medium">Medium</option>
+                      <option value="Low">Low</option>
+                      <option value="Informational">Informational</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Timestamp</label>
+                    <input type="datetime-local" />
+                  </div>
+                  <div class="form-group">
+                    <label>Hostname / Endpoint</label>
+                    <input type="text" placeholder="WRK-FINANCE-03" />
+                  </div>
+                  <div class="form-group">
+                    <label>Process Name</label>
+                    <input type="text" placeholder="powershell.exe" />
+                  </div>
+                  <div class="form-group">
+                    <label>File Hash (SHA256)</label>
+                    <input
+                      type="text"
+                      placeholder="e3b0c44298fc1c149afbf4c..."
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Action Taken</label>
+                    <select>
+                      <option value="Detected">Detected</option>
+                      <option value="Blocked">Blocked</option>
+                      <option value="Quarantined">Quarantined</option>
+                      <option value="Killed Process">Killed Process</option>
+                      <option value="Isolated Host">Isolated Host</option>
+                    </select>
+                  </div>
+                  <div class="form-group full-width">
+                    <label>Raw Log / Evidence</label>
+                    <textarea
+                      rows="5"
+                      placeholder="Paste EDR/XDR detection details, process tree, or telemetry here..."
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <label>Analysis Notes</label>
+                    <textarea
+                      rows="3"
+                      placeholder="Analyst observations..."
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <button class="btn btn-primary" onclick="addFinding('edr')">
+                      ➕ Add EDR/XDR Finding
+                    </button>
+                  </div>
+                </div>
+                <div class="findings-list" id="findings-edr"></div>
+              </div>
+
+              <!-- IDS/IPS Panel -->
+              <div class="tab-panel" id="panel-ids">
+                <div class="add-finding-form" id="form-ids">
+                  <div class="form-group">
+                    <label>Tool Name</label>
+                    <select>
+                      <option value="Snort">Snort</option>
+                      <option value="Suricata">Suricata</option>
+                      <option value="Zeek (Bro)">Zeek (Bro)</option>
+                      <option value="OSSEC">OSSEC</option>
+                      <option value="Cisco IPS">Cisco IPS</option>
+                      <option value="Other IDS">Other</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Signature / Rule</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. ET MALWARE Win32/Emotet CnC Activity"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Severity</label>
+                    <select>
+                      <option value="Critical">Critical</option>
+                      <option value="High">High</option>
+                      <option value="Medium">Medium</option>
+                      <option value="Low">Low</option>
+                      <option value="Informational">Informational</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Timestamp</label>
+                    <input type="datetime-local" />
+                  </div>
+                  <div class="form-group">
+                    <label>Source IP:Port</label>
+                    <input type="text" placeholder="192.168.1.50:49321" />
+                  </div>
+                  <div class="form-group">
+                    <label>Destination IP:Port</label>
+                    <input type="text" placeholder="45.33.32.156:443" />
+                  </div>
+                  <div class="form-group">
+                    <label>Protocol</label>
+                    <select>
+                      <option value="TCP">TCP</option>
+                      <option value="UDP">UDP</option>
+                      <option value="ICMP">ICMP</option>
+                      <option value="HTTP">HTTP</option>
+                      <option value="DNS">DNS</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Action</label>
+                    <select>
+                      <option value="Alert">Alert</option>
+                      <option value="Drop">Drop</option>
+                      <option value="Reject">Reject</option>
+                      <option value="Pass">Pass</option>
+                    </select>
+                  </div>
+                  <div class="form-group full-width">
+                    <label>Raw Log / Packet Data</label>
+                    <textarea
+                      rows="5"
+                      placeholder="Paste IDS/IPS alert details, matched rules, or packet captures..."
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <label>Analysis Notes</label>
+                    <textarea
+                      rows="3"
+                      placeholder="Analyst observations..."
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <button class="btn btn-primary" onclick="addFinding('ids')">
+                      ➕ Add IDS/IPS Finding
+                    </button>
+                  </div>
+                </div>
+                <div class="findings-list" id="findings-ids"></div>
+              </div>
+
+              <!-- Firewall Panel -->
+              <div class="tab-panel" id="panel-firewall">
+                <div class="add-finding-form" id="form-firewall">
+                  <div class="form-group">
+                    <label>Tool Name</label>
+                    <select>
+                      <option value="Palo Alto NGFW">Palo Alto NGFW</option>
+                      <option value="Fortinet FortiGate">
+                        Fortinet FortiGate
+                      </option>
+                      <option value="Cisco ASA">Cisco ASA</option>
+                      <option value="pfSense">pfSense</option>
+                      <option value="Check Point">Check Point</option>
+                      <option value="Sophos XG">Sophos XG</option>
+                      <option value="AWS Security Groups">
+                        AWS Security Groups
+                      </option>
+                      <option value="Azure Firewall">Azure Firewall</option>
+                      <option value="Other Firewall">Other</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Rule / Policy Name</label>
+                    <input type="text" placeholder="e.g. Block-C2-Outbound" />
+                  </div>
+                  <div class="form-group">
+                    <label>Severity</label>
+                    <select>
+                      <option value="Critical">Critical</option>
+                      <option value="High">High</option>
+                      <option value="Medium">Medium</option>
+                      <option value="Low">Low</option>
+                      <option value="Informational">Informational</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Timestamp</label>
+                    <input type="datetime-local" />
+                  </div>
+                  <div class="form-group">
+                    <label>Source IP / Zone</label>
+                    <input type="text" placeholder="10.0.0.0/24 (Trust)" />
+                  </div>
+                  <div class="form-group">
+                    <label>Destination IP / Zone</label>
+                    <input type="text" placeholder="203.0.113.50 (Untrust)" />
+                  </div>
+                  <div class="form-group">
+                    <label>Port / Service</label>
+                    <input type="text" placeholder="443/HTTPS" />
+                  </div>
+                  <div class="form-group">
+                    <label>Action</label>
+                    <select>
+                      <option value="Denied">Denied</option>
+                      <option value="Allowed">Allowed</option>
+                      <option value="Dropped">Dropped</option>
+                      <option value="Reset">Reset</option>
+                    </select>
+                  </div>
+                  <div class="form-group full-width">
+                    <label>Raw Log / Evidence</label>
+                    <textarea
+                      rows="5"
+                      placeholder="Paste firewall log entries, session data, or traffic analysis..."
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <label>Analysis Notes</label>
+                    <textarea
+                      rows="3"
+                      placeholder="Analyst observations..."
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <button
+                      class="btn btn-primary"
+                      onclick="addFinding('firewall')"
+                    >
+                      ➕ Add Firewall Finding
+                    </button>
+                  </div>
+                </div>
+                <div class="findings-list" id="findings-firewall"></div>
+              </div>
+
+              <!-- Email Security Panel -->
+              <div class="tab-panel" id="panel-email">
+                <div class="add-finding-form" id="form-email">
+                  <div class="form-group">
+                    <label>Tool Name</label>
+                    <select>
+                      <option value="Proofpoint">Proofpoint</option>
+                      <option value="Mimecast">Mimecast</option>
+                      <option value="Microsoft Defender for O365">
+                        MS Defender for Office 365
+                      </option>
+                      <option value="Barracuda">Barracuda</option>
+                      <option value="Cisco Email Security">
+                        Cisco Email Security
+                      </option>
+                      <option value="Other Email">Other</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Alert / Detection</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Phishing email with malicious attachment"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Severity</label>
+                    <select>
+                      <option value="Critical">Critical</option>
+                      <option value="High">High</option>
+                      <option value="Medium">Medium</option>
+                      <option value="Low">Low</option>
+                      <option value="Informational">Informational</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Timestamp</label>
+                    <input type="datetime-local" />
+                  </div>
+                  <div class="form-group">
+                    <label>Sender</label>
+                    <input
+                      type="text"
+                      placeholder="attacker@phish-domain.com"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Recipient(s)</label>
+                    <input type="text" placeholder="user@company.com" />
+                  </div>
+                  <div class="form-group">
+                    <label>Subject</label>
+                    <input
+                      type="text"
+                      placeholder="Urgent: Invoice Payment Required"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Action</label>
+                    <select>
+                      <option value="Quarantined">Quarantined</option>
+                      <option value="Delivered">Delivered</option>
+                      <option value="Blocked">Blocked</option>
+                      <option value="Deleted">Deleted</option>
+                    </select>
+                  </div>
+                  <div class="form-group full-width">
+                    <label>Email Headers / Evidence</label>
+                    <textarea
+                      rows="5"
+                      placeholder="Paste email headers, URL analysis, attachment hashes..."
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <label>Analysis Notes</label>
+                    <textarea
+                      rows="3"
+                      placeholder="Analyst observations..."
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <button
+                      class="btn btn-primary"
+                      onclick="addFinding('email')"
+                    >
+                      ➕ Add Email Finding
+                    </button>
+                  </div>
+                </div>
+                <div class="findings-list" id="findings-email"></div>
+              </div>
+
+              <!-- WAF Panel -->
+              <div class="tab-panel" id="panel-waf">
+                <div class="add-finding-form" id="form-waf">
+                  <div class="form-group">
+                    <label>Tool Name</label>
+                    <select>
+                      <option value="AWS WAF">AWS WAF</option>
+                      <option value="Cloudflare WAF">Cloudflare WAF</option>
+                      <option value="Akamai WAF">Akamai WAF</option>
+                      <option value="ModSecurity">ModSecurity</option>
+                      <option value="F5 ASM">F5 ASM</option>
+                      <option value="Imperva WAF">Imperva WAF</option>
+                      <option value="Other WAF">Other</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Rule / Attack Type</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. SQL Injection attempt on /api/login"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Severity</label>
+                    <select>
+                      <option value="Critical">Critical</option>
+                      <option value="High">High</option>
+                      <option value="Medium">Medium</option>
+                      <option value="Low">Low</option>
+                      <option value="Informational">Informational</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Timestamp</label>
+                    <input type="datetime-local" />
+                  </div>
+                  <div class="form-group">
+                    <label>Source IP</label>
+                    <input type="text" placeholder="198.51.100.23" />
+                  </div>
+                  <div class="form-group">
+                    <label>Target URL / Path</label>
+                    <input
+                      type="text"
+                      placeholder="/api/v2/users?id=1' OR 1=1--"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>HTTP Method</label>
+                    <select>
+                      <option value="GET">GET</option>
+                      <option value="POST">POST</option>
+                      <option value="PUT">PUT</option>
+                      <option value="DELETE">DELETE</option>
+                      <option value="PATCH">PATCH</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Action</label>
+                    <select>
+                      <option value="Blocked">Blocked</option>
+                      <option value="Logged">Logged</option>
+                      <option value="Challenged">Challenged</option>
+                      <option value="Allowed">Allowed</option>
+                    </select>
+                  </div>
+                  <div class="form-group full-width">
+                    <label>Request Payload / Log</label>
+                    <textarea
+                      rows="5"
+                      placeholder="Paste WAF request/response logs, matched rule details, payload data..."
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <label>Analysis Notes</label>
+                    <textarea
+                      rows="3"
+                      placeholder="Analyst observations..."
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <button class="btn btn-primary" onclick="addFinding('waf')">
+                      ➕ Add WAF Finding
+                    </button>
+                  </div>
+                </div>
+                <div class="findings-list" id="findings-waf"></div>
+              </div>
+
+              <!-- Threat Intel Panel -->
+              <div class="tab-panel" id="panel-threat_intel">
+                <div class="add-finding-form" id="form-threat_intel">
+                  <div class="form-group">
+                    <label>Source</label>
+                    <select>
+                      <option value="VirusTotal">VirusTotal</option>
+                      <option value="AbuseIPDB">AbuseIPDB</option>
+                      <option value="Shodan">Shodan</option>
+                      <option value="AlienVault OTX">AlienVault OTX</option>
+                      <option value="MISP">MISP</option>
+                      <option value="ThreatFox">ThreatFox</option>
+                      <option value="URLhaus">URLhaus</option>
+                      <option value="Recorded Future">Recorded Future</option>
+                      <option value="OSINT">OSINT / Manual</option>
+                      <option value="Other TI">Other</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Intelligence Summary</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. IP linked to APT29 infrastructure"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Confidence</label>
+                    <select>
+                      <option value="High">High</option>
+                      <option value="Medium">Medium</option>
+                      <option value="Low">Low</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Date Retrieved</label>
+                    <input type="datetime-local" />
+                  </div>
+                  <div class="form-group">
+                    <label>Indicator Value</label>
+                    <input type="text" placeholder="IP, hash, domain, URL..." />
+                  </div>
+                  <div class="form-group">
+                    <label>Indicator Type</label>
+                    <select>
+                      <option value="IP Address">IP Address</option>
+                      <option value="Domain">Domain</option>
+                      <option value="URL">URL</option>
+                      <option value="File Hash">File Hash</option>
+                      <option value="Email">Email Address</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Associated Threat Group</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Lazarus Group, APT28"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Severity</label>
+                    <select>
+                      <option value="Critical">Critical</option>
+                      <option value="High">High</option>
+                      <option value="Medium">Medium</option>
+                      <option value="Low">Low</option>
+                      <option value="Informational">Informational</option>
+                    </select>
+                  </div>
+                  <div class="form-group full-width">
+                    <label>Full Intel Report / Evidence</label>
+                    <textarea
+                      rows="5"
+                      placeholder="Paste threat intelligence report, VirusTotal results, or OSINT findings..."
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <label>Analysis Notes</label>
+                    <textarea
+                      rows="3"
+                      placeholder="Analyst observations..."
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <button
+                      class="btn btn-primary"
+                      onclick="addFinding('threat_intel')"
+                    >
+                      ➕ Add Threat Intel Finding
+                    </button>
+                  </div>
+                </div>
+                <div class="findings-list" id="findings-threat_intel"></div>
+              </div>
+
+              <!-- Custom/Other Panel -->
+              <div class="tab-panel" id="panel-custom">
+                <div class="add-finding-form" id="form-custom">
+                  <div class="form-group">
+                    <label>Tool / Source Name</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Custom Scanner, DLP, Vulnerability Scanner"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Finding Title</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Sensitive Data Exfiltration Attempt"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Severity</label>
+                    <select>
+                      <option value="Critical">Critical</option>
+                      <option value="High">High</option>
+                      <option value="Medium">Medium</option>
+                      <option value="Low">Low</option>
+                      <option value="Informational">Informational</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Timestamp</label>
+                    <input type="datetime-local" />
+                  </div>
+                  <div class="form-group">
+                    <label>Category</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Data Loss Prevention"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Affected Resource</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. S3 bucket, Database, Server"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Action Taken</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Blocked, Alerted, Remediated"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Severity Classification</label>
+                    <select>
+                      <option value="Critical">Critical</option>
+                      <option value="High">High</option>
+                      <option value="Medium">Medium</option>
+                      <option value="Low">Low</option>
+                      <option value="Informational">Informational</option>
+                    </select>
+                  </div>
+                  <div class="form-group full-width">
+                    <label>Raw Data / Evidence</label>
+                    <textarea
+                      rows="5"
+                      placeholder="Paste any tool output, logs, or evidence..."
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <label>Analysis Notes</label>
+                    <textarea
+                      rows="3"
+                      placeholder="Analyst observations..."
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <button
+                      class="btn btn-primary"
+                      onclick="addFinding('custom')"
+                    >
+                      ➕ Add Finding
+                    </button>
+                  </div>
+                </div>
+                <div class="findings-list" id="findings-custom"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== SECTION 3: TIMELINE ========== -->
+      <div class="main-section" id="section-timeline">
+        <div class="section">
+          <div class="section-header">
+            <div class="icon amber">⏱️</div>
+            <h2>Incident Timeline</h2>
+            <p>Chronological events</p>
+          </div>
+          <div class="card">
+            <div class="form-grid" style="margin-bottom: 16px">
+              <div class="form-group">
+                <label>Date & Time</label>
+                <input type="datetime-local" id="tlTime" />
+              </div>
+              <div class="form-group" style="grid-column: span 2">
+                <label>Event Description</label>
+                <input
+                  type="text"
+                  id="tlEvent"
+                  placeholder="e.g. Initial phishing email received by finance@company.com"
+                />
+              </div>
+              <div class="form-group">
+                <label>Source Tool</label>
+                <input
+                  type="text"
+                  id="tlSource"
+                  placeholder="e.g. SIEM, EDR, Manual"
+                />
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="addTimelineEvent()">
+              ➕ Add Timeline Event
+            </button>
+
+            <div
+              class="timeline"
+              id="timelineList"
+              style="margin-top: 24px"
+            ></div>
+
+            <div class="empty-state" id="timelineEmpty">
+              <div class="empty-icon">📅</div>
+              <p>
+                No timeline events yet. Add events to build a chronological view
+                of the incident.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== SECTION 4: IOCs ========== -->
+      <div class="main-section" id="section-ioc">
+        <div class="section">
+          <div class="section-header">
+            <div class="icon red">🎯</div>
+            <h2>Indicators of Compromise</h2>
+            <p>Track IOCs</p>
+          </div>
+          <div class="card">
+            <div class="form-grid" style="margin-bottom: 16px">
+              <div class="form-group">
+                <label>IOC Type</label>
+                <select id="iocType">
+                  <option value="IP Address">IP Address</option>
+                  <option value="Domain">Domain</option>
+                  <option value="URL">URL</option>
+                  <option value="File Hash (MD5)">File Hash (MD5)</option>
+                  <option value="File Hash (SHA1)">File Hash (SHA1)</option>
+                  <option value="File Hash (SHA256)">File Hash (SHA256)</option>
+                  <option value="Email Address">Email Address</option>
+                  <option value="File Name">File Name</option>
+                  <option value="Registry Key">Registry Key</option>
+                  <option value="Mutex">Mutex</option>
+                  <option value="User Agent">User Agent</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Value</label>
+                <input
+                  type="text"
+                  id="iocValue"
+                  placeholder="e.g. 203.0.113.50 or evil.exe"
+                />
+              </div>
+              <div class="form-group">
+                <label>Context / Source</label>
+                <input
+                  type="text"
+                  id="iocContext"
+                  placeholder="e.g. Found in EDR detection, C2 callback"
+                />
+              </div>
+              <div class="form-group">
+                <label>&nbsp;</label>
+                <button class="btn btn-primary" onclick="addIOC()">
+                  ➕ Add IOC
+                </button>
+              </div>
+            </div>
+
+            <div class="btn-group" style="margin-bottom: 16px">
+              <button
+                class="btn btn-secondary btn-sm"
+                onclick="autoExtractIOCs()"
+              >
+                🔍 Auto-Extract IOCs from All Findings
+              </button>
+            </div>
+
+            <div class="ioc-table-wrapper">
+              <table class="ioc-table" id="iocTable">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Value</th>
+                    <th>Context</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="iocTableBody"></tbody>
+              </table>
+            </div>
+
+            <div class="empty-state" id="iocEmpty">
+              <div class="empty-icon">🔎</div>
+              <p>
+                No IOCs added yet. Add indicators manually or use auto-extract
+                from findings.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== SECTION 5: MITRE ATT&CK ========== -->
+      <div class="main-section" id="section-mitre">
+        <div class="section">
+          <div class="section-header">
+            <div class="icon purple">🗺️</div>
+            <h2>MITRE ATT&CK Mapping</h2>
+            <p>Map tactics and techniques</p>
+          </div>
+          <div class="card">
+            <div class="form-grid" style="margin-bottom: 16px">
+              <div class="form-group">
+                <label>Tactic</label>
+                <select id="mitreTactic">
+                  <option value="">Select tactic...</option>
+                  <option value="TA0043 - Reconnaissance">
+                    TA0043 — Reconnaissance
+                  </option>
+                  <option value="TA0042 - Resource Development">
+                    TA0042 — Resource Development
+                  </option>
+                  <option value="TA0001 - Initial Access">
+                    TA0001 — Initial Access
+                  </option>
+                  <option value="TA0002 - Execution">TA0002 — Execution</option>
+                  <option value="TA0003 - Persistence">
+                    TA0003 — Persistence
+                  </option>
+                  <option value="TA0004 - Privilege Escalation">
+                    TA0004 — Privilege Escalation
+                  </option>
+                  <option value="TA0005 - Defense Evasion">
+                    TA0005 — Defense Evasion
+                  </option>
+                  <option value="TA0006 - Credential Access">
+                    TA0006 — Credential Access
+                  </option>
+                  <option value="TA0007 - Discovery">TA0007 — Discovery</option>
+                  <option value="TA0008 - Lateral Movement">
+                    TA0008 — Lateral Movement
+                  </option>
+                  <option value="TA0009 - Collection">
+                    TA0009 — Collection
+                  </option>
+                  <option value="TA0011 - Command and Control">
+                    TA0011 — Command and Control
+                  </option>
+                  <option value="TA0010 - Exfiltration">
+                    TA0010 — Exfiltration
+                  </option>
+                  <option value="TA0040 - Impact">TA0040 — Impact</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Technique ID & Name</label>
+                <input
+                  type="text"
+                  id="mitreTechnique"
+                  placeholder="e.g. T1566.001 — Spearphishing Attachment"
+                />
+              </div>
+              <div class="form-group">
+                <label>&nbsp;</label>
+                <button class="btn btn-primary" onclick="addMitre()">
+                  ➕ Add Mapping
+                </button>
+              </div>
+            </div>
+
+            <div class="mitre-tags" id="mitreTagsList"></div>
+
+            <div class="empty-state" id="mitreEmpty">
+              <div class="empty-icon">🗺️</div>
+              <p>No MITRE ATT&CK techniques mapped yet.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== SECTION 6: RESPONSE ACTIONS ========== -->
+      <div class="main-section" id="section-actions">
+        <div class="section">
+          <div class="section-header">
+            <div class="icon green">🛡️</div>
+            <h2>Response Actions</h2>
+            <p>Containment, eradication & recovery</p>
+          </div>
+          <div class="card">
+            <div class="form-grid">
+              <div class="form-group full-width">
+                <label>Containment Actions</label>
+                <textarea
+                  id="containmentActions"
+                  rows="4"
+                  placeholder="e.g.&#10;- Isolated affected endpoints from network&#10;- Disabled compromised user accounts&#10;- Blocked malicious IPs at firewall"
+                ></textarea>
+              </div>
+              <div class="form-group full-width">
+                <label>Eradication Actions</label>
+                <textarea
+                  id="eradicationActions"
+                  rows="4"
+                  placeholder="e.g.&#10;- Removed malware from all affected systems&#10;- Reset compromised credentials&#10;- Patched exploited vulnerability"
+                ></textarea>
+              </div>
+              <div class="form-group full-width">
+                <label>Recovery Actions</label>
+                <textarea
+                  id="recoveryActions"
+                  rows="4"
+                  placeholder="e.g.&#10;- Restored systems from verified clean backups&#10;- Verified integrity of restored data&#10;- Gradually reconnected systems to network"
+                ></textarea>
+              </div>
+              <div class="form-group full-width">
+                <label>Lessons Learned & Recommendations</label>
+                <textarea
+                  id="recommendations"
+                  rows="5"
+                  placeholder="e.g.&#10;- Implement MFA for all VPN access&#10;- Enhance email filtering rules&#10;- Conduct phishing awareness training&#10;- Review and tighten firewall rules"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== SECTION 7: REPORT PREVIEW ========== -->
+      <div class="main-section" id="section-report">
+        <div class="section">
+          <div class="section-header">
+            <div class="icon cyan">📄</div>
+            <h2>Generated Report</h2>
+            <p>Preview & export</p>
+          </div>
+
+          <div class="btn-group" style="margin-bottom: 20px">
+            <button class="btn btn-success" onclick="generateReport()">
+              ⚡ Generate Report
+            </button>
+            <button class="btn btn-secondary" onclick="saveToLocalStorage()">
+              💾 Save Draft
+            </button>
+            <button class="btn btn-ghost" onclick="loadFromLocalStorage()">
+              📂 Load Draft
+            </button>
+          </div>
+
+          <div class="report-preview" id="reportOutput">
+            <div class="empty-state">
+              <div class="empty-icon">📄</div>
+              <p>
+                Click "Generate Report" to compile your incident data into a
+                professional report.
+              </p>
+            </div>
+          </div>
+
+          <div class="export-bar" id="exportBar" style="display: none">
+            <button class="btn btn-primary" onclick="printReport()">
+              🖨️ Export as PDF (Print)
+            </button>
+            <button class="btn btn-secondary" onclick="copyReportText()">
+              📋 Copy Report Text
+            </button>
+            <button class="btn btn-ghost" onclick="exportJSON()">
+              📦 Export Data (JSON)
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== FOOTER ========== -->
+    <footer style="text-align: center; padding: 30px 20px; margin-top: 20px; border-top: 1px solid rgba(0, 212, 255, 0.12); position: relative; z-index: 1;">
+      <p style="font-size: 0.85rem; color: #5a6380; margin-bottom: 6px;">
+        🛡️ <strong style="color: #00d4ff;">IR Report Generator</strong> — Built by
+        <a href="https://github.com/0xsabry" target="_blank" rel="noopener" style="color: #00ff88; text-decoration: none; font-weight: 600;">0xsabry</a>
+      </p>
+      <p style="font-size: 0.72rem; color: #3a4260; letter-spacing: 0.5px;">
+        © 2026 0xsabry — MIT License |
+        <a href="https://github.com/0xsabry/IR-Report-Generator" target="_blank" rel="noopener" style="color: #5a6380; text-decoration: none;">GitHub Repository</a>
+      </p>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
