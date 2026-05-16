@@ -15,10 +15,13 @@ const store = {
     waf: [],
     threat_intel: [],
     custom: [],
+    forensics: [],
   },
   timeline: [],
   iocs: [],
   mitre: [],
+  custody: [],
+  forensicsExams: [],
 };
 
 const TOOL_LABELS = {
@@ -30,6 +33,7 @@ const TOOL_LABELS = {
   waf: "WAF",
   threat_intel: "Threat Intelligence",
   custom: "Other Tools",
+  forensics: "Digital Forensics",
 };
 
 // ---- FIELD MAPPINGS per tool type ----
@@ -130,24 +134,46 @@ const TOOL_FIELDS = {
     "Raw Data / Evidence",
     "Analysis Notes",
   ],
+  forensics: [
+    "Tool Name",
+    "Examination Type",
+    "Severity",
+    "Timestamp",
+    "Evidence Source",
+    "Examiner Name",
+    "Artifacts Found",
+    "Action Taken",
+    "Raw Output / Evidence",
+    "Analysis Notes",
+  ],
 };
 
 // ============================================
-//  NAVIGATION
+//  SIDEBAR NAVIGATION
 // ============================================
 
-document.querySelectorAll(".main-nav-btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    document
-      .querySelectorAll(".main-nav-btn")
-      .forEach((b) => b.classList.remove("active"));
-    document
-      .querySelectorAll(".main-section")
-      .forEach((s) => s.classList.remove("active"));
-    btn.classList.add("active");
-    document.getElementById(btn.dataset.target).classList.add("active");
+function toggleSidebar() {
+  document.querySelector(".app-layout").classList.toggle("sidebar-collapsed");
+}
+
+function initNavigation() {
+  document.querySelectorAll(".sidebar-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document
+        .querySelectorAll(".sidebar-btn")
+        .forEach((b) => b.classList.remove("active"));
+      document
+        .querySelectorAll(".main-section")
+        .forEach((s) => s.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById(btn.dataset.target).classList.add("active");
+      // Close sidebar on mobile after selection
+      if (window.innerWidth <= 768) {
+        document.querySelector(".app-layout").classList.add("sidebar-collapsed");
+      }
+    });
   });
-});
+}
 
 // Tool tabs navigation
 document.querySelectorAll("#toolTabsNav .tab-btn").forEach((btn) => {
@@ -638,6 +664,246 @@ function renderMitre() {
 }
 
 // ============================================
+//  CHAIN OF CUSTODY
+// ============================================
+
+function addCustodyEntry() {
+  const evidenceId = document.getElementById("custodyEvidenceId").value.trim();
+  const description = document.getElementById("custodyDescription").value.trim();
+  const type = document.getElementById("custodyType").value;
+  const collectedBy = document.getElementById("custodyCollectedBy").value.trim();
+  const collectionDate = document.getElementById("custodyCollectionDate").value;
+  const collectionLocation = document.getElementById("custodyCollectionLocation").value.trim();
+  const hashValue = document.getElementById("custodyHashValue").value.trim();
+  const hashType = document.getElementById("custodyHashType").value;
+  const storageLocation = document.getElementById("custodyStorageLocation").value.trim();
+  const currentCustodian = document.getElementById("custodyCurrentCustodian").value.trim();
+
+  if (!evidenceId) {
+    showToast("Please enter an Evidence ID.", "error");
+    return;
+  }
+
+  store.custody.push({
+    _id: Date.now(),
+    evidenceId,
+    description,
+    type,
+    collectedBy,
+    collectionDate,
+    collectionLocation,
+    hashValue,
+    hashType,
+    storageLocation,
+    currentCustodian,
+    transfers: [],
+  });
+
+  // Clear form
+  document.getElementById("custodyEvidenceId").value = "";
+  document.getElementById("custodyDescription").value = "";
+  document.getElementById("custodyType").selectedIndex = 0;
+  document.getElementById("custodyCollectedBy").value = "";
+  document.getElementById("custodyCollectionDate").value = "";
+  document.getElementById("custodyCollectionLocation").value = "";
+  document.getElementById("custodyHashValue").value = "";
+  document.getElementById("custodyHashType").selectedIndex = 0;
+  document.getElementById("custodyStorageLocation").value = "";
+  document.getElementById("custodyCurrentCustodian").value = "";
+
+  renderCustody();
+  showToast("Evidence added to chain of custody!", "success");
+  saveAutoBackup();
+}
+
+function removeCustodyEntry(id) {
+  store.custody = store.custody.filter((c) => c._id !== id);
+  renderCustody();
+  saveAutoBackup();
+}
+
+function addTransferLog(evidenceId) {
+  const from = document.getElementById(`transferFrom-${evidenceId}`).value.trim();
+  const to = document.getElementById(`transferTo-${evidenceId}`).value.trim();
+  const date = document.getElementById(`transferDate-${evidenceId}`).value;
+  const purpose = document.getElementById(`transferPurpose-${evidenceId}`).value.trim();
+  const notes = document.getElementById(`transferNotes-${evidenceId}`).value.trim();
+
+  if (!from || !to) {
+    showToast("Please enter both From and To custodians.", "error");
+    return;
+  }
+
+  const entry = store.custody.find((c) => c._id === evidenceId);
+  if (entry) {
+    entry.transfers.push({ from, to, date: date || "Not specified", purpose, notes });
+    entry.currentCustodian = to;
+    renderCustody();
+    showToast("Transfer log added!", "success");
+    saveAutoBackup();
+  }
+}
+
+function renderCustody() {
+  const container = document.getElementById("custodyList");
+  const empty = document.getElementById("custodyEmpty");
+
+  if (store.custody.length === 0) {
+    container.innerHTML = "";
+    empty.style.display = "block";
+    return;
+  }
+
+  empty.style.display = "none";
+  container.innerHTML = store.custody
+    .map((c) => {
+      const transfersHtml = c.transfers.length
+        ? `
+        <div class="custody-transfers">
+          <h4>Transfer Log</h4>
+          <table class="custody-table">
+            <thead><tr><th>From</th><th>To</th><th>Date</th><th>Purpose</th><th>Notes</th></tr></thead>
+            <tbody>
+              ${c.transfers
+                .map(
+                  (t) => `
+                <tr>
+                  <td>${escapeHtml(t.from)}</td>
+                  <td>${escapeHtml(t.to)}</td>
+                  <td>${formatDateTime(t.date)}</td>
+                  <td>${escapeHtml(t.purpose)}</td>
+                  <td>${escapeHtml(t.notes)}</td>
+                </tr>`,
+                )
+                .join("")}
+            </tbody>
+          </table>
+        </div>`
+        : "";
+
+      return `
+      <div class="custody-item">
+        <div class="custody-header">
+          <div class="custody-meta">
+            <span class="custody-id">${escapeHtml(c.evidenceId)}</span>
+            <span class="custody-type-badge">${escapeHtml(c.type)}</span>
+            <span class="custody-custodian">👤 ${escapeHtml(c.currentCustodian || "Unassigned")}</span>
+          </div>
+          <button class="remove-finding" onclick="removeCustodyEntry(${c._id})" title="Remove">✕</button>
+        </div>
+        <div class="custody-body">
+          <div class="report-meta-grid" style="margin: 0;">
+            ${c.description ? `<div class="report-meta-item"><div class="meta-label">Description</div><div class="meta-value">${escapeHtml(c.description)}</div></div>` : ""}
+            ${c.collectedBy ? `<div class="report-meta-item"><div class="meta-label">Collected By</div><div class="meta-value">${escapeHtml(c.collectedBy)}</div></div>` : ""}
+            ${c.collectionDate ? `<div class="report-meta-item"><div class="meta-label">Collection Date</div><div class="meta-value">${formatDateTime(c.collectionDate)}</div></div>` : ""}
+            ${c.collectionLocation ? `<div class="report-meta-item"><div class="meta-label">Collection Location</div><div class="meta-value">${escapeHtml(c.collectionLocation)}</div></div>` : ""}
+            ${c.hashValue ? `<div class="report-meta-item"><div class="meta-label">Hash (${escapeHtml(c.hashType)})</div><div class="meta-value" style="font-family: var(--font-mono); font-size: 0.78rem;">${escapeHtml(c.hashValue)}</div></div>` : ""}
+            ${c.storageLocation ? `<div class="report-meta-item"><div class="meta-label">Storage Location</div><div class="meta-value">${escapeHtml(c.storageLocation)}</div></div>` : ""}
+          </div>
+          ${transfersHtml}
+          <div class="custody-transfer-form">
+            <h4>Add Transfer</h4>
+            <div class="form-grid" style="gap: 10px;">
+              <div class="form-group"><input type="text" id="transferFrom-${c._id}" placeholder="From" /></div>
+              <div class="form-group"><input type="text" id="transferTo-${c._id}" placeholder="To" /></div>
+              <div class="form-group"><input type="datetime-local" id="transferDate-${c._id}" /></div>
+              <div class="form-group"><input type="text" id="transferPurpose-${c._id}" placeholder="Purpose" /></div>
+              <div class="form-group full-width"><textarea id="transferNotes-${c._id}" rows="2" placeholder="Notes..."></textarea></div>
+              <div class="form-group full-width">
+                <button class="btn btn-secondary btn-sm" onclick="addTransferLog(${c._id})">➕ Log Transfer</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    })
+    .join("");
+}
+
+// ============================================
+//  FORENSICS EXAMINATIONS
+// ============================================
+
+function addForensicsExam() {
+  const tool = document.getElementById("forensicsTool").value;
+  const type = document.getElementById("forensicsType").value;
+  const source = document.getElementById("forensicsSource").value.trim();
+  const examiner = document.getElementById("forensicsExaminer").value.trim();
+  const date = document.getElementById("forensicsDate").value;
+  const artifacts = document.getElementById("forensicsArtifacts").value.trim();
+  const output = document.getElementById("forensicsOutput").value.trim();
+  const notes = document.getElementById("forensicsNotes").value.trim();
+
+  if (!tool && !source) {
+    showToast("Please enter at least a tool or evidence source.", "error");
+    return;
+  }
+
+  store.forensicsExams.push({
+    _id: Date.now(),
+    tool,
+    type,
+    source,
+    examiner,
+    date,
+    artifacts,
+    output,
+    notes,
+  });
+
+  document.getElementById("forensicsTool").selectedIndex = 0;
+  document.getElementById("forensicsType").selectedIndex = 0;
+  document.getElementById("forensicsSource").value = "";
+  document.getElementById("forensicsExaminer").value = "";
+  document.getElementById("forensicsDate").value = "";
+  document.getElementById("forensicsArtifacts").value = "";
+  document.getElementById("forensicsOutput").value = "";
+  document.getElementById("forensicsNotes").value = "";
+
+  renderForensicsExams();
+  showToast("Forensics examination added!", "success");
+  saveAutoBackup();
+}
+
+function removeForensicsExam(id) {
+  store.forensicsExams = store.forensicsExams.filter((f) => f._id !== id);
+  renderForensicsExams();
+  saveAutoBackup();
+}
+
+function renderForensicsExams() {
+  const container = document.getElementById("forensicsList");
+  const empty = document.getElementById("forensicsEmpty");
+
+  if (store.forensicsExams.length === 0) {
+    container.innerHTML = "";
+    empty.style.display = "block";
+    return;
+  }
+
+  empty.style.display = "none";
+  container.innerHTML = store.forensicsExams
+    .map((f, idx) => {
+      return `
+      <div class="finding-item">
+        <div class="finding-header">
+          <span class="finding-number">#${idx + 1} — ${escapeHtml(f.tool || "Forensics")} (${escapeHtml(f.type || "Unknown")})</span>
+          <button class="remove-finding" onclick="removeForensicsExam(${f._id})" title="Remove">✕</button>
+        </div>
+        <div class="form-grid" style="gap: 8px;">
+          ${f.source ? `<div class="form-group"><label>Evidence Source</label><div style="font-size: 0.88rem; color: var(--text-primary); padding: 4px 0;">${escapeHtml(f.source)}</div></div>` : ""}
+          ${f.examiner ? `<div class="form-group"><label>Examiner</label><div style="font-size: 0.88rem; color: var(--text-primary); padding: 4px 0;">${escapeHtml(f.examiner)}</div></div>` : ""}
+          ${f.date ? `<div class="form-group"><label>Examination Date</label><div style="font-size: 0.88rem; color: var(--text-primary); padding: 4px 0;">${formatDateTime(f.date)}</div></div>` : ""}
+          ${f.artifacts ? `<div class="form-group full-width"><label>Artifacts Found</label><div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-green); background: var(--bg-input); padding: 10px; border-radius: var(--radius-sm); white-space: pre-wrap; max-height: 150px; overflow-y: auto;">${escapeHtml(f.artifacts)}</div></div>` : ""}
+          ${f.output ? `<div class="form-group full-width"><label>Raw Output</label><div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-green); background: var(--bg-input); padding: 10px; border-radius: var(--radius-sm); white-space: pre-wrap; max-height: 150px; overflow-y: auto;">${escapeHtml(f.output)}</div></div>` : ""}
+          ${f.notes ? `<div class="form-group full-width"><label>Analysis Notes</label><div style="font-size: 0.88rem; color: var(--text-primary); padding: 4px 0;">${escapeHtml(f.notes)}</div></div>` : ""}
+        </div>
+      </div>`;
+    })
+    .join("");
+}
+
+// ============================================
 //  REPORT GENERATION
 // ============================================
 
@@ -684,6 +950,8 @@ function generateReport() {
       `${toolsUsed.length > 0 ? " (" + toolsUsed.join(", ") + ")" : ""}. ` +
       `${store.iocs.length} indicator(s) of compromise were identified. ` +
       `${store.timeline.length} timeline event(s) were recorded. ` +
+      `${store.custody.length} evidence item(s) tracked in chain of custody. ` +
+      `${store.forensicsExams.length} digital forensics examination(s) conducted. ` +
       `The incident was detected on ${date ? formatDateTime(date) : "an unspecified date"} ` +
       `and is currently ${status}.` +
       `${assets ? " Affected assets include: " + assets + "." : ""}`;
@@ -818,11 +1086,65 @@ function generateReport() {
       </table>`;
   }
 
+  // Chain of Custody
+  if (store.custody.length > 0) {
+    let sectionNum = 3;
+    if (store.mitre.length > 0) sectionNum++;
+    if (store.timeline.length > 0) sectionNum++;
+    if (store.iocs.length > 0) sectionNum++;
+
+    html += `<h2>${sectionNum}. Chain of Custody (${store.custody.length} Evidence Items)</h2>`;
+    store.custody.forEach((c, idx) => {
+      html += `<h3>Evidence #${idx + 1}: ${escapeHtml(c.evidenceId)} <span class="ioc-type-badge ${c.type === "Digital" ? "hash" : c.type === "Physical" ? "ip" : "file"}">${escapeHtml(c.type)}</span></h3>`;
+      html += `<div class="report-meta-grid">`;
+      if (c.description) html += `<div class="report-meta-item"><div class="meta-label">Description</div><div class="meta-value">${escapeHtml(c.description)}</div></div>`;
+      if (c.collectedBy) html += `<div class="report-meta-item"><div class="meta-label">Collected By</div><div class="meta-value">${escapeHtml(c.collectedBy)}</div></div>`;
+      if (c.collectionDate) html += `<div class="report-meta-item"><div class="meta-label">Collection Date</div><div class="meta-value">${formatDateTime(c.collectionDate)}</div></div>`;
+      if (c.collectionLocation) html += `<div class="report-meta-item"><div class="meta-label">Collection Location</div><div class="meta-value">${escapeHtml(c.collectionLocation)}</div></div>`;
+      if (c.hashValue) html += `<div class="report-meta-item"><div class="meta-label">Hash (${escapeHtml(c.hashType)})</div><div class="meta-value" style="font-family: var(--font-mono); font-size: 0.78rem;">${escapeHtml(c.hashValue)}</div></div>`;
+      if (c.storageLocation) html += `<div class="report-meta-item"><div class="meta-label">Storage Location</div><div class="meta-value">${escapeHtml(c.storageLocation)}</div></div>`;
+      if (c.currentCustodian) html += `<div class="report-meta-item"><div class="meta-label">Current Custodian</div><div class="meta-value">${escapeHtml(c.currentCustodian)}</div></div>`;
+      html += `</div>`;
+
+      if (c.transfers.length > 0) {
+        html += `<h4>Transfer Log</h4><table><thead><tr><th>From</th><th>To</th><th>Date</th><th>Purpose</th><th>Notes</th></tr></thead><tbody>`;
+        c.transfers.forEach((t) => {
+          html += `<tr><td>${escapeHtml(t.from)}</td><td>${escapeHtml(t.to)}</td><td>${formatDateTime(t.date)}</td><td>${escapeHtml(t.purpose)}</td><td>${escapeHtml(t.notes)}</td></tr>`;
+        });
+        html += `</tbody></table>`;
+      }
+    });
+  }
+
+  // Forensics Examinations
+  if (store.forensicsExams.length > 0) {
+    let sectionNum = 3;
+    if (store.mitre.length > 0) sectionNum++;
+    if (store.timeline.length > 0) sectionNum++;
+    if (store.iocs.length > 0) sectionNum++;
+    if (store.custody.length > 0) sectionNum++;
+
+    html += `<h2>${sectionNum}. Digital Forensics Examinations (${store.forensicsExams.length})</h2>`;
+    store.forensicsExams.forEach((f, idx) => {
+      html += `<h3>Examination #${idx + 1}: ${escapeHtml(f.tool || "Forensics")} — ${escapeHtml(f.type || "Unknown")}</h3>`;
+      html += `<div class="report-meta-grid">`;
+      if (f.source) html += `<div class="report-meta-item"><div class="meta-label">Evidence Source</div><div class="meta-value">${escapeHtml(f.source)}</div></div>`;
+      if (f.examiner) html += `<div class="report-meta-item"><div class="meta-label">Examiner</div><div class="meta-value">${escapeHtml(f.examiner)}</div></div>`;
+      if (f.date) html += `<div class="report-meta-item"><div class="meta-label">Examination Date</div><div class="meta-value">${formatDateTime(f.date)}</div></div>`;
+      html += `</div>`;
+      if (f.artifacts) html += `<p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 4px; font-weight: 600;">Artifacts Found</p><div class="log-block">${escapeHtml(f.artifacts)}</div>`;
+      if (f.output) html += `<p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 4px; font-weight: 600;">Raw Output</p><div class="log-block">${escapeHtml(f.output)}</div>`;
+      if (f.notes) html += `<p>${escapeHtml(f.notes)}</p>`;
+    });
+  }
+
   // Tool findings
   let sectionBase = 3;
   if (store.mitre.length > 0) sectionBase++;
   if (store.timeline.length > 0) sectionBase++;
   if (store.iocs.length > 0) sectionBase++;
+  if (store.custody.length > 0) sectionBase++;
+  if (store.forensicsExams.length > 0) sectionBase++;
 
   Object.entries(store.findings).forEach(([tool, findings]) => {
     if (findings.length === 0) return;
@@ -923,7 +1245,7 @@ function renderTextBlock(text) {
 function printReport() {
   // Navigate to report section first
   document
-    .querySelectorAll(".main-nav-btn")
+    .querySelectorAll(".sidebar-btn")
     .forEach((b) => b.classList.remove("active"));
   document
     .querySelectorAll(".main-section")
@@ -974,6 +1296,8 @@ function exportJSON() {
     timeline: store.timeline,
     iocs: store.iocs,
     mitre: store.mitre,
+    custody: store.custody,
+    forensicsExams: store.forensicsExams,
     responseActions: {
       containment: document.getElementById("containmentActions").value,
       eradication: document.getElementById("eradicationActions").value,
@@ -1045,6 +1369,8 @@ function gatherAllData() {
     timeline: store.timeline,
     iocs: store.iocs,
     mitre: store.mitre,
+    custody: store.custody,
+    forensicsExams: store.forensicsExams,
     responseActions: {
       containment: document.getElementById("containmentActions").value,
       eradication: document.getElementById("eradicationActions").value,
@@ -1090,6 +1416,16 @@ function restoreAllData(data) {
   if (data.mitre) {
     store.mitre = data.mitre;
     renderMitre();
+  }
+
+  if (data.custody) {
+    store.custody = data.custody;
+    renderCustody();
+  }
+
+  if (data.forensicsExams) {
+    store.forensicsExams = data.forensicsExams;
+    renderForensicsExams();
   }
 
   if (data.responseActions) {
@@ -1138,6 +1474,8 @@ function formatDateTime(dt) {
 // ============================================
 
 (function init() {
+  initNavigation();
+
   // Try to load auto-backup
   const backup = localStorage.getItem("ir-report-autobackup");
   if (backup) {
@@ -1146,7 +1484,9 @@ function formatDateTime(dt) {
       const allEmpty =
         !data.metadata?.incidentId &&
         Object.values(data.findings || {}).every((a) => a.length === 0) &&
-        (!data.timeline || data.timeline.length === 0);
+        (!data.timeline || data.timeline.length === 0) &&
+        (!data.custody || data.custody.length === 0) &&
+        (!data.forensicsExams || data.forensicsExams.length === 0);
 
       if (!allEmpty) {
         restoreAllData(data);
@@ -1161,6 +1501,8 @@ function formatDateTime(dt) {
   renderTimeline();
   renderIOCs();
   renderMitre();
+  renderCustody();
+  renderForensicsExams();
   updateStats();
   updateTabCounts();
 
