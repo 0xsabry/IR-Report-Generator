@@ -1,143 +1,137 @@
-# 🛡️ IR Report Generator — Incident Response Reporting Platform
+# IR Report Generator
 
 <div align="center">
 
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![Zero Dependencies](https://img.shields.io/badge/Dependencies-Zero-16A34A?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey?style=for-the-badge)
-![Tools](https://img.shields.io/badge/Security%20Tools-55%2B-red?style=for-the-badge)
-![Zero Deps](https://img.shields.io/badge/Dependencies-Zero-brightgreen?style=for-the-badge)
 
-**Aggregate security tool data (SIEM, EDR, XDR, IDS, Firewall, WAF, Threat Intel, Forensics) into professional, structured incident response reports — entirely in your browser.**
+**A polished, browser-based incident response report builder for SOC analysts, DFIR teams, and threat hunters.**
 
-Built by [**0xSABRY**](https://github.com/0xsabry) — SOC Analyst & Security Researcher
+Build structured IR reports from SIEM, EDR, XDR, IDS, firewall, WAF, threat intelligence, IOC, timeline, forensics, and chain-of-custody data without a backend or install step.
 
-[![LinkedIn](https://img.shields.io/badge/Connect-LinkedIn-0077B5?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/mohamed-sabry-hamdan/)
+[Report a Bug](https://github.com/0xsabry/IR-Report-Generator/issues/new?template=bug_report.md) ·
+[Request a Feature](https://github.com/0xsabry/IR-Report-Generator/issues/new?template=feature_request.md) ·
+[Connect on LinkedIn](https://www.linkedin.com/in/mohamed-sabry-hamdan/)
 
 </div>
 
 ---
 
-## Overview
+## Why It Exists
 
-A zero-dependency, browser-based Incident Response Report Generator designed for SOC analysts, IR teams, and threat hunters. No servers, no installations — just open `index.html` and start building professional IR reports.
+Incident response notes are often scattered across alerts, endpoint detections, packet captures, forensic tools, threat intelligence lookups, and analyst timelines. IR Report Generator brings those inputs into one focused workspace and turns them into a professional report that can be printed, copied, or exported.
 
-> 🎯 Follows NIST 800-61 incident handling framework and MITRE ATT&CK tactic mapping
+The app runs entirely in the browser. Your data stays local unless you export or share it.
 
----
+## Highlights
 
-## ✨ Features
+| Capability | What it does |
+| ---------- | ------------ |
+| Incident metadata | Captures ID, title, status, severity, category, analyst, team, dates, and affected assets |
+| Security tool findings | Supports SIEM, EDR/XDR, IDS/IPS, firewall, email security, WAF, threat intel, forensics, and custom sources |
+| IOC management | Tracks indicators manually and auto-extracts IPs, domains, hashes, URLs, and emails from findings |
+| Timeline builder | Creates a chronological incident narrative from response and detection events |
+| MITRE ATT&CK mapping | Documents tactics, techniques, and procedures for threat context |
+| Chain of custody | Records evidence, hashes, custodians, storage locations, and transfer history |
+| Digital forensics | Captures examination scope, tools, artifacts, findings, and examiner notes |
+| Report generation | Produces a structured incident response report with executive summary and evidence sections |
+| Export options | Print to PDF, copy report text, or export source data as JSON |
+| Premium UI | Responsive layout, light/dark themes, saved theme preference, refined transitions, and reduced-motion support |
 
-| Feature | Description |
-| ------- | ----------- |
-| 📋 **Incident Metadata** | ID, title, severity, status, category, analyst, affected assets |
-| 🔧 **9 Tool Categories** | SIEM, EDR/XDR, IDS/IPS, Firewall, Email Security, WAF, Threat Intel, Forensics, Custom |
-| ⏱️ **Timeline Builder** | Chronological event timeline with auto-sorting |
-| 🎯 **IOC Tracker** | Manual entry + auto-extraction of IPs, domains, hashes, URLs, emails |
-| 🔗 **Chain of Custody** | Evidence registry, custody transfer logs, hash verification, storage tracking |
-| 🔬 **Digital Forensics** | Structured forensics examinations with 15+ tools, artifact documentation |
-| 🗺️ **MITRE ATT&CK** | Full framework tactic & technique mapping |
-| 🛡️ **Response Actions** | Containment, eradication, recovery, recommendations |
-| 📄 **Report Generation** | Auto executive summary, structured sections, CONFIDENTIAL footer |
-| 🖨️ **Multi-Export** | PDF (print), clipboard text, JSON data export |
-| 💾 **Auto-Save** | localStorage auto-backup & manual save/load drafts |
-| 🌙 **Dark Theme** | Professional cybersecurity dark theme with sidebar navigation |
+## Supported Tool Families
 
----
+| Category | Examples |
+| -------- | -------- |
+| SIEM | Splunk, IBM QRadar, Wazuh, Microsoft Sentinel, Elastic SIEM, LogRhythm, ArcSight |
+| EDR / XDR | CrowdStrike Falcon, SentinelOne, Microsoft Defender, Carbon Black, Cortex XDR, Trend Micro |
+| IDS / IPS | Snort, Suricata, Zeek, OSSEC, Cisco IPS |
+| Firewall | Palo Alto NGFW, Fortinet FortiGate, Cisco ASA, pfSense, Check Point, Sophos XG |
+| Email Security | Proofpoint, Mimecast, Microsoft Defender for Office 365, Barracuda |
+| WAF | AWS WAF, Cloudflare, Akamai, ModSecurity, F5 ASM, Imperva |
+| Threat Intel | VirusTotal, AbuseIPDB, Shodan, AlienVault OTX, MISP, ThreatFox, Recorded Future |
+| Forensics | Autopsy, FTK, EnCase, Volatility, X-Ways, Magnet AXIOM, Cellebrite, SANS SIFT, KAPE, Velociraptor, Plaso, ExifTool, YARA |
 
-## 🔧 Supported Security Tools (55+)
-
-| Category | Tools |
-| -------- | ----- |
-| **SIEM** | Splunk, IBM QRadar, Wazuh, Microsoft Sentinel, Elastic SIEM, LogRhythm, ArcSight |
-| **EDR/XDR** | CrowdStrike Falcon, SentinelOne, Microsoft Defender, Carbon Black, Cortex XDR, Trend Micro |
-| **IDS/IPS** | Snort, Suricata, Zeek (Bro), OSSEC, Cisco IPS |
-| **Firewall** | Palo Alto NGFW, Fortinet FortiGate, Cisco ASA, pfSense, Check Point, Sophos XG |
-| **Email** | Proofpoint, Mimecast, MS Defender for Office 365, Barracuda |
-| **WAF** | AWS WAF, Cloudflare, Akamai, ModSecurity, F5 ASM, Imperva |
-| **Threat Intel** | VirusTotal, AbuseIPDB, Shodan, AlienVault OTX, MISP, ThreatFox, Recorded Future |
-| **Forensics** | Autopsy, FTK, EnCase, Volatility, X-Ways, Magnet AXIOM, Cellebrite, SANS SIFT, Redline, KAPE, Velociraptor, Plaso, ExifTool, YARA |
-
----
-
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
-# Clone the repository
 git clone https://github.com/0xsabry/IR-Report-Generator.git
 cd IR-Report-Generator
-
-# Open in your browser — no server needed!
-# Windows:
-start index.html
-# Mac:
-open index.html
-# Linux:
-xdg-open index.html
 ```
 
-### Workflow
+Open `index.html` in your browser. No server or package installation is required.
 
-1. **📝 Incident Details** — Fill in metadata (ID, severity, category, analyst)
-2. **🔧 Security Tool Findings** — Add findings from SIEM, EDR, IDS, Forensics, etc.
-3. **⏱️ Timeline** — Build chronological event timeline
-4. **🎯 IOC Tracking** — Enter or auto-extract indicators of compromise
-5. **🔗 Chain of Custody** — Log evidence with transfer tracking and hash verification
-6. **🔬 Forensics** — Document digital forensics examinations and artifacts
-7. **🗺️ MITRE Mapping** — Map tactics & techniques
-8. **🛡️ Response** — Document containment, eradication, recovery actions
-9. **📄 Generate & Export** — Auto-generate professional report → PDF/JSON/Clipboard
+For local testing with a simple server:
 
----
-
-## 🏗️ Tech Stack
-
-| Technology | Purpose |
-| ---------- | ------- |
-| **HTML5** | Semantic structure |
-| **CSS3** | Dark cybersecurity theme, sidebar layout, responsive |
-| **Vanilla JS** | Zero dependencies — runs entirely client-side |
-| **Google Fonts** | Inter + JetBrains Mono for professional typography |
-
----
-
-## 📁 Project Structure
-
+```bash
+python -m http.server 5173 --bind 127.0.0.1
 ```
+
+Then open `http://127.0.0.1:5173/`.
+
+## Analyst Workflow
+
+1. Add the core incident metadata.
+2. Enter findings from security tools and forensic sources.
+3. Build the incident timeline.
+4. Add or auto-extract IOCs.
+5. Map relevant MITRE ATT&CK techniques.
+6. Document evidence and chain of custody.
+7. Record response actions and recommendations.
+8. Generate, review, and export the final report.
+
+## Project Structure
+
+```text
 IR-Report-Generator/
-├── index.html          # Main application page
-├── style.css           # Dark cybersecurity theme with sidebar
-├── app.js              # Application logic (report builder, IOC extractor, custody, forensics)
-├── CONTRIBUTING.md     # Contribution guidelines
-├── SECURITY.md         # Security policy
-├── LICENSE             # MIT License
-└── README.md           # This file
+├── index.html
+├── style.css
+├── app.js
+├── CONTRIBUTING.md
+├── SECURITY.md
+├── LICENSE
+└── README.md
 ```
 
----
+## Technology
 
-## 🤝 Contributing
+This project intentionally stays lightweight:
 
-Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+| Layer | Technology |
+| ----- | ---------- |
+| Interface | HTML5 and CSS3 |
+| Logic | Vanilla JavaScript |
+| Storage | Browser localStorage |
+| Typography | Inter and JetBrains Mono |
+| Dependencies | None |
 
-## 🔒 Security
+## Security Model
 
-See [SECURITY.md](SECURITY.md) for vulnerability reporting.
+- No backend service.
+- No database.
+- No telemetry.
+- Report data remains in the browser unless manually exported.
+- Local drafts are stored in `localStorage`.
 
----
+For vulnerability reporting, see [SECURITY.md](SECURITY.md).
 
-## 📄 License
+## Contributing
 
-MIT License — see [LICENSE](LICENSE)
+Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md), use the issue templates where possible, and keep changes scoped and testable.
+
+## License
+
+MIT License. See [LICENSE](LICENSE).
 
 ---
 
 <div align="center">
 
-Made with 🛡️ by [0xSABRY](https://github.com/0xsabry) — SOC Analyst & Security Researcher
+Built by [0xSABRY](https://github.com/0xsabry) for practical incident response reporting.
 
-[![LinkedIn](https://img.shields.io/badge/Connect_on_LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/mohamed-sabry-hamdan/)
-[![GitHub](https://img.shields.io/badge/Follow_on_GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/0xsabry)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/mohamed-sabry-hamdan/)
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/0xsabry)
 
 </div>
