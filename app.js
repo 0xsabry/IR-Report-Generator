@@ -156,17 +156,115 @@ function toggleSidebar() {
   document.querySelector(".app-layout").classList.toggle("sidebar-collapsed");
 }
 
+function applyTheme(theme) {
+  const selectedTheme = theme === "dark" ? "dark" : "light";
+  document.documentElement.dataset.theme = selectedTheme;
+  localStorage.setItem("ir-report-theme", selectedTheme);
+
+  const isDark = selectedTheme === "dark";
+  const toggle = document.getElementById("themeToggle");
+  const icon = document.getElementById("themeToggleIcon");
+  const text = document.getElementById("themeToggleText");
+
+  if (toggle) {
+    toggle.setAttribute(
+      "aria-label",
+      isDark ? "Switch to light mode" : "Switch to dark mode",
+    );
+  }
+  if (icon) {
+    icon.textContent = isDark ? "☀️" : "🌙";
+  }
+  if (text) {
+    text.textContent = isDark ? "Light mode" : "Dark mode";
+  }
+}
+
+function toggleTheme() {
+  const currentTheme = document.documentElement.dataset.theme || "light";
+  applyTheme(currentTheme === "dark" ? "light" : "dark");
+}
+
+function initTheme() {
+  const savedTheme = localStorage.getItem("ir-report-theme");
+  const prefersDark = window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+  applyTheme(savedTheme || (prefersDark ? "dark" : "light"));
+}
+
+function activateSection(targetId) {
+  document
+    .querySelectorAll(".main-section")
+    .forEach((section) => section.classList.remove("active"));
+
+  const target = document.getElementById(targetId);
+  if (target) {
+    target.classList.add("active");
+    target.classList.remove("section-entering");
+    requestAnimationFrame(() => target.classList.add("section-entering"));
+  }
+}
+
+function createButtonRipple(button, event) {
+  if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+    return;
+  }
+
+  const ripple = document.createElement("span");
+  const rect = button.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height);
+
+  ripple.className = "button-ripple";
+  ripple.style.width = `${size}px`;
+  ripple.style.height = `${size}px`;
+  ripple.style.left = `${event.clientX - rect.left - size / 2}px`;
+  ripple.style.top = `${event.clientY - rect.top - size / 2}px`;
+
+  button.appendChild(ripple);
+  ripple.addEventListener("animationend", () => ripple.remove());
+}
+
+function initPremiumMotion() {
+  document
+    .querySelectorAll(".btn, .sidebar-btn, .tab-btn, .theme-toggle, .mobile-menu-button")
+    .forEach((button) => {
+      button.addEventListener("click", (event) => createButtonRipple(button, event));
+    });
+
+  const revealTargets = document.querySelectorAll(
+    ".hero-compact, .section-header, .card, .report-preview, .export-bar",
+  );
+
+  if (!("IntersectionObserver" in window)) {
+    revealTargets.forEach((target) => target.classList.add("is-visible"));
+    return;
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.12 },
+  );
+
+  revealTargets.forEach((target) => {
+    target.classList.add("reveal-on-scroll");
+    observer.observe(target);
+  });
+}
+
 function initNavigation() {
   document.querySelectorAll(".sidebar-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       document
         .querySelectorAll(".sidebar-btn")
         .forEach((b) => b.classList.remove("active"));
-      document
-        .querySelectorAll(".main-section")
-        .forEach((s) => s.classList.remove("active"));
       btn.classList.add("active");
-      document.getElementById(btn.dataset.target).classList.add("active");
+      activateSection(btn.dataset.target);
       // Close sidebar on mobile after selection
       if (window.innerWidth <= 768) {
         document.querySelector(".app-layout").classList.add("sidebar-collapsed");
@@ -1247,11 +1345,8 @@ function printReport() {
   document
     .querySelectorAll(".sidebar-btn")
     .forEach((b) => b.classList.remove("active"));
-  document
-    .querySelectorAll(".main-section")
-    .forEach((s) => s.classList.remove("active"));
   document.getElementById("navReport").classList.add("active");
-  document.getElementById("section-report").classList.add("active");
+  activateSection("section-report");
 
   setTimeout(() => window.print(), 300);
 }
@@ -1474,7 +1569,13 @@ function formatDateTime(dt) {
 // ============================================
 
 (function init() {
+  initTheme();
   initNavigation();
+  initPremiumMotion();
+
+  if (window.innerWidth <= 768) {
+    document.querySelector(".app-layout").classList.add("sidebar-collapsed");
+  }
 
   // Try to load auto-backup
   const backup = localStorage.getItem("ir-report-autobackup");

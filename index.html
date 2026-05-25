@@ -72,6 +72,19 @@
       <main class="main-content">
         <!-- Compact Hero -->
         <header class="hero-compact">
+          <div class="hero-actions">
+            <button class="mobile-menu-button" onclick="toggleSidebar()">☰ Menu</button>
+            <button
+              class="theme-toggle"
+              id="themeToggle"
+              type="button"
+              onclick="toggleTheme()"
+              aria-label="Switch to dark mode"
+            >
+              <span id="themeToggleIcon">🌙</span>
+              <span id="themeToggleText">Dark mode</span>
+            </button>
+          </div>
           <h1>IR Report Generator</h1>
           <p>Aggregate data from SIEM, EDR, XDR, IDS, Firewall, WAF, Threat Intel & Forensics into structured, professional incident response reports.</p>
         </header>
