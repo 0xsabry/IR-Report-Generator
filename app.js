@@ -156,6 +156,41 @@ function toggleSidebar() {
   document.querySelector(".app-layout").classList.toggle("sidebar-collapsed");
 }
 
+function applyTheme(theme) {
+  const selectedTheme = theme === "dark" ? "dark" : "light";
+  document.documentElement.dataset.theme = selectedTheme;
+  localStorage.setItem("ir-report-theme", selectedTheme);
+
+  const isDark = selectedTheme === "dark";
+  const toggle = document.getElementById("themeToggle");
+  const icon = document.getElementById("themeToggleIcon");
+  const text = document.getElementById("themeToggleText");
+
+  if (toggle) {
+    toggle.setAttribute(
+      "aria-label",
+      isDark ? "Switch to light mode" : "Switch to dark mode",
+    );
+  }
+  if (icon) {
+    icon.textContent = isDark ? "☀️" : "🌙";
+  }
+  if (text) {
+    text.textContent = isDark ? "Light mode" : "Dark mode";
+  }
+}
+
+function toggleTheme() {
+  const currentTheme = document.documentElement.dataset.theme || "light";
+  applyTheme(currentTheme === "dark" ? "light" : "dark");
+}
+
+function initTheme() {
+  const savedTheme = localStorage.getItem("ir-report-theme");
+  const prefersDark = window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+  applyTheme(savedTheme || (prefersDark ? "dark" : "light"));
+}
+
 function initNavigation() {
   document.querySelectorAll(".sidebar-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -1474,7 +1509,12 @@ function formatDateTime(dt) {
 // ============================================
 
 (function init() {
+  initTheme();
   initNavigation();
+
+  if (window.innerWidth <= 768) {
+    document.querySelector(".app-layout").classList.add("sidebar-collapsed");
+  }
 
   // Try to load auto-backup
   const backup = localStorage.getItem("ir-report-autobackup");
